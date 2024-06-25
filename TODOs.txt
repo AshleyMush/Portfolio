@@ -1,1 +1,1 @@
-Remove register.html once deployed. Remove register article from index.html
+Remove register.html once deployed. Remove register article from index.html.
