@@ -50,7 +50,8 @@ def home():
         """
         if the form is validated, send an email to the user and another to the admin
         """
-        name, email, subject, message = contact_form.name.data, contact_form.email.data, contact_form.subject.data, contact_form.message.data
+        name, email, subject, message = contact_form.name.data,\
+            contact_form.email.data, contact_form.subject.data, contact_form.message.data
 
         print(f"{name, email, subject, message}")
 
