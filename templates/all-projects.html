@@ -1,0 +1,24 @@
+<header>
+	<h1 class="apple-font">Projects</h1>
+</header>
+<p>
+	Here's a list of some of my favourite projects!
+</p>
+<section>
+	<div class="row">
+
+	{% for project in projects %}
+<div class="col-4 col-6-medium col-12-small ">
+ <a href="{{url_for('get_project', id=project.id)}}" class="image fit ">
+
+  <img src="{{ project.homepage_thumbnail}}" class=" project-card" alt="">
+  <div class="project-name">{{project.name}}</div>
+ </a>
+</div>
+	{% endfor %}
+
+
+
+
+	</div>
+</section>

@@ -1,0 +1,92 @@
+{% block about %}
+
+
+				<div class="d-flex">
+					<a href="{{ url_for('download') }}" class="btn btn-dark mb-3 ms-auto" download="CV.pdf"
+						target="_blank">
+						Download Resume <span><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+								fill="currentColor" class="bi bi-arrow-down-circle-fill" viewBox="0 0 16 16">
+								<path
+									d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0M8.5 4.5a.5.5 0 0 0-1 0v5.793L5.354 8.146a.5.5 0 1 0-.708.708l3 3a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293z" />
+							</svg></span>
+					</a>
+
+
+				</div>
+
+				<h1 class="apple-font">About Me</h1>
+
+				<!-- Summary -->
+				<section class="summary-section">
+					<h2>Technologies</h2>
+					<ul class="contact-info">
+						<li>Python: Both for web development and data science</li>
+						<li>Objective-C</li>
+						<li>C</li>
+						<li>Java Script</li>
+					</ul>
+				</section>
+
+				<!-- Education -->
+				<section class="education-section">
+					<h3>Education</h3>
+					<ul class="list-group">
+						<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+							class="bi bi-circle" viewBox="0 0 16 16">
+							<path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16" />
+						</svg>
+						<div class="job">
+							<li>
+								<h4 class="job-title">Bachelors in Computer Science</h4>
+							</li>
+						</div>
+
+
+						<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+							class="bi bi-circle" viewBox="0 0 16 16">
+							<path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16" />
+						</svg>
+
+						<div class="job">
+							<li>
+								<h4 class="job-title">Certificate in Software Engineering</h4>
+							</li>
+						</div>
+					</ul>
+				</section>
+
+				<!-- Professional Experience -->
+				<section class="professional-experience">
+					<h3>Professional Experience</h3>
+					<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+						class="bi bi-circle" viewBox="0 0 16 16">
+						<path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16" />
+					</svg>
+					<div class="job">
+						<h4 class="job-title">Care Coordinator</h4>
+						<p class="job-description">2022 - Present | Angel Care Group ltd, Oxfordshire, GB</p>
+						<ul>
+							<li>Developed systems for client analysis, auditing and work-flow for staff. Manage 12 team
+								leaders and over 200 service users</li>
+							<li>Manage 12 team leaders and over 200 service users</li>
+							<li>Manage care-team rotas, assess incoming services users and make care plans</li>
+
+						</ul>
+					</div>
+					<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+						class="bi bi-circle" viewBox="0 0 16 16">
+						<path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16" />
+					</svg>
+					<div class="job">
+						<h4 class="job-title">Cruiseship comedy club host and manager</h4>
+						<p class="job-description">2021 - 2022 | Carnival cruises, Miami, USA</p>
+						<ul>
+							<li>Managed over 50 comdians through scheduling, setting the stages annd lounges</li>
+							<li>Opened shows for comedians and ensured guest satisfaction in 2 lounges on board</li>
+						</ul>
+					</div>
+				</section>
+
+
+
+{% endblock %}

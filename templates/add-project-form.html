@@ -1,0 +1,12 @@
+{% from 'bootstrap5/form.html' import render_form %}
+
+<header>
+    {% if login: %}
+    <h1 class="message-sent">Successfuly logged in</h1>
+    {% else: %}
+    <h1 class="apple-font">Login</h1>
+    {% endif %}
+
+</header>
+
+{{ render_form(add_project_form, novalidate=True) }}

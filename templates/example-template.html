@@ -1,0 +1,32 @@
+				<header>
+					{% if msg_sent: %}
+					<h1 class="message-sent">Successfuly sent message</h1>
+					{% else: %}
+					<h1 class="apple-font">Contact Me</h1>
+					{% endif %}
+
+				</header>
+
+
+
+				<form action="#contact" method="post">
+					<div>
+						<div class="row">
+							<div class="col-6 col-12-medium">
+
+							</div>
+							<div class="col-6 col-12-medium">
+								<input type="text" name="email" placeholder="Email" />
+							</div>
+							<div class="col-12">
+								<input type="text" name="subject" placeholder="Subject" />
+							</div>
+							<div class="col-12">
+								<textarea name="message" placeholder="Message" rows="6"></textarea>
+							</div>
+							<div class="col-12">
+								<input type="submit" class="btn btn-dark" value="Send Message" />
+							</div>
+						</div>
+					</div>
+				</form>
