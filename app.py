@@ -2,7 +2,7 @@ from flask import Flask, abort, render_template, redirect, url_for, flash, reque
 from flask_bootstrap import Bootstrap5
 from datetime import datetime
 from flask_ckeditor import CKEditor
-from werkzeug.security import generate_password_hash
+from werkzeug.security import generate_password_hash, check_password_hash
 from email.mime.text import MIMEText
 import smtplib
 import os
@@ -11,6 +11,9 @@ from models import db, Projects, User
 from wtforms import ValidationError
 import requests
 import json
+from flask_login import login_user
+
+from flask_login import LoginManager
 
 MY_EMAIL_ADDRESS = os.environ.get("EMAIL_KEY")
 MY_EMAIL_APP_PASSWORD = os.environ.get("PASSWORD_KEY")
@@ -27,7 +30,14 @@ db.init_app(app)
 with app.app_context():
     db.create_all()
 
+#----------------------Configure login
+login_manager = LoginManager()
+login_manager.init_app(app)
 
+# Create a user_loader callback
+@login_manager.user_loader
+def load_user(user_id):
+    return db.get_or_404(User, user_id)
 
 
 
@@ -43,6 +53,7 @@ def home():
     login_form = LoginForm()
     register_form = RegisterForm()
     add_project_form = AddProjectForm()
+
     current_year = datetime.now().year
     list_of_projects = Projects.query.all()
 
@@ -63,11 +74,17 @@ def home():
                                 login=False, form=contact_form, login_form=login_form,request_form=register_form,
 
                                add_project_form=add_project_form)
+
     #TODO: remove once registered and deployed
+    #----Register form---#
     if register_form.validate_on_submit() and register_form.data:
         """
         if the form is validated, create a new user instance and add it to the database
         """
+
+        existing_user = User.query.filter_by(email=register_form.email.data).first()
+        if existing_user:
+            flash("You've already signed up with that email, log in instead!")
 
         hashed_and_salted_password = generate_password_hash(register_form.password.data,
                                                             method='pbkdf2:sha256',
@@ -80,6 +97,71 @@ def home():
         )
         db.session.add(new_user)
         db.session.commit()
+
+    if login_form.validate_on_submit() and login_form.data:
+        """
+        if the form is validated, login the user
+        """
+        login_email =login_form.email.data
+        login_password = login_form.password.data
+
+        user = User.query.filter_by(email=login_email).first()
+
+        if user and check_password_hash(user.password, login_password)
+            login_user(user)
+            return redirect(url_for('admin-home'))
+
+
+
+
+
+    return render_template('index.html', projects=list_of_projects, current_year=current_year, msg_sent=False,
+                           login=False, form=contact_form, login_form=login_form, register_form= register_form, add_project_form=add_project_form)
+
+#----------------------------------------------------------------------Add project
+# Todo: Create instance of db and  pasrse  projects to projects.html
+@app.route('/projects', methods=['GET', 'POST'])
+def all_projects():
+    list_of_projects = Projects.query.all()
+    return render_template('all-projects.html', projects=list_of_projects)
+
+
+
+#-------------------------------------------------------------------Admin home
+@app.route('/admin-home', methods=['GET', 'POST'])
+def admin_home():
+    """
+    Add Docstrings here to explain what this function does
+    :return:
+    """
+    login_form = LoginForm()
+    register_form = RegisterForm()
+    contact_form = ContactForm()
+    add_project_form = AddProjectForm()
+    current_year = datetime.now().year
+    list_of_projects = Projects.query.all()
+    logged_in = True
+
+    if contact_form.validate_on_submit() and contact_form.data:
+        """
+        if the form is validated and has data on the fields required, send an email to the user and another to the admin
+        """
+        name, email, subject, message = contact_form.name.data,\
+            contact_form.email.data, contact_form.subject.data, contact_form.message.data
+
+        print(f"{name, email, subject, message}")
+
+        send_confirmation_email(name=name, email=email, subject=subject)
+        send_email(name=name, subject=subject, email=email, message=message)
+
+        return render_template('index.html', projects=list_of_projects,
+                               current_year=current_year, msg_sent=True,
+                                login=logged_in, form=contact_form, login_form=login_form,request_form=register_form,
+
+                               add_project_form=add_project_form)
+
+
+
 
     if add_project_form.validate_on_submit() and add_project_form.data:
         """
@@ -103,6 +185,10 @@ def home():
                            login=False, form=contact_form, login_form=login_form, register_form= register_form, add_project_form=add_project_form)
 
 
+
+
+
+
 # Todo: Create instance of db and  pasrse  projects to projects.html
 @app.route('/projects', methods=['GET', 'POST'])
 def all_projects():
@@ -110,15 +196,30 @@ def all_projects():
     return render_template('all-projects.html', projects=list_of_projects)
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 # API - Get all items
-# @app.route('/projects', methods=['GET', 'POST'])
-# def all_projects():
-#     # Call the API endpoint
-#     response = requests.get(url=f"{BASE_URL}/all")
-#     data = response.json()
-#     list_of_projects = data['projects']
-#
-#     return render_template('all-projects.html', projects=list_of_projects)
+
 
 
 # HTTP- Create item
@@ -130,53 +231,54 @@ def all_projects():
 
 
 # API HTTP - Create item
-# @app.route('/add', methods=[ 'POST'])
-# def add_project():
-#     if request.method == 'POST':
-#         new_project = {
-#             'name': request.form.get('name'),
-#             'homepage_thumbnail': request.form.get('homepage_thumbnail'),
-#             'img_url': request.form.get('img_url'),
-#             'video_url': request.form.get('video_url'),
-#             'category': request.form.get('category'),
-#             'tech_used': request.form.get('tech_used'),
-#             'project_url': request.form.get('project_url'),
-#             'description': request.form.get('description')
-#         }
-#         response = requests.post(url=f"{BASE_URL}/insert-to-db", data=new_project)
-#         if response.status_code == 201:
-#             return redirect(url_for('all_projects'))
-#         else:
-#             return f"Error: Could not add project {new_project['name']}"
-#     return render_template('add_project.html')
+"""@app.route('/add', methods=[ 'POST'])
+def add_project():
+    if request.method == 'POST':
+        new_project = {
+            'name': request.form.get('name'),
+            'homepage_thumbnail': request.form.get('homepage_thumbnail'),
+            'img_url': request.form.get('img_url'),
+            'video_url': request.form.get('video_url'),
+            'category': request.form.get('category'),
+            'tech_used': request.form.get('tech_used'),
+            'project_url': request.form.get('project_url'),
+            'description': request.form.get('description')
+        }
+        response = requests.post(url=f"{BASE_URL}/insert-to-db", data=new_project)
+        if response.status_code == 201:
+            return redirect(url_for('all_projects'))
+        else:
+            return f"Error: Could not add project {new_project['name']}"
+    return render_template('add_project.html')"""
 
 
 # TODO Make this app an app and front end app because I have to make the api seperately with the db and then the app
 
 # HTTP -  API Update item
 
-# @app.route('/patch/<int:id>', methods=['Patch'])
-# def send_patch_to_api(id):
-#     selected_project = db.get_or_404(Projects, id)
-#     if request.method =="PATCH":
-#         if request.method == 'PATCH':
-#             update_data = {
-#                 'name': request.form.get('name'),
-#                 'homepage_thumbnail': request.form.get('homepage_thumbnail'),
-#                 'img_url': request.form.get('img_url'),
-#                 'video_url': request.form.get('video_url'),
-#                 'category': request.form.get('category'),
-#                 'tech_used': request.form.get('tech_used'),
-#                 'project_url': request.form.get('project_url'),
-#                 'description': request.form.get('description')
-#             }
-#
-#             response = requests.patch(url=f"{BASE_URL}/patch/{id}", data=update_data)
-#             if response.status_code == 200:
-#                 return redirect(url_for('all_projects'))
-#             else:
-#                 return f"Error: Could not update project {selected_project.name}"
+"""@app.route('/patch/<int:id>', methods=['Patch'])
+def send_patch_to_api(id):
+    selected_project = db.get_or_404(Projects, id)
+    if request.method =="PATCH":
+        if request.method == 'PATCH':
+            update_data = {
+                'name': request.form.get('name'),
+                'homepage_thumbnail': request.form.get('homepage_thumbnail'),
+                'img_url': request.form.get('img_url'),
+                'video_url': request.form.get('video_url'),
+                'category': request.form.get('category'),
+                'tech_used': request.form.get('tech_used'),
+                'project_url': request.form.get('project_url'),
+                'description': request.form.get('description')
+            }
 
+            response = requests.patch(url=f"{BASE_URL}/patch/{id}", data=update_data)
+            if response.status_code == 200:
+                return redirect(url_for('all_projects'))
+            else:
+                return f"Error: Could not update project {selected_project.name}"""""
+
+"""
 @app.route('/put/<int:id>', methods=['PUT'])
 def send_put_to_api(id):
     selected_project = db.get_or_404(Projects, id)
@@ -197,7 +299,8 @@ def send_put_to_api(id):
             if response.status_code == 200:
                 return redirect(url_for('all_projects'))
             else:
-                return f"Error: Could not update project {selected_project.name}"
+                return f"Error: Could not update project {selected_project.name}
+"""""
 
 
 

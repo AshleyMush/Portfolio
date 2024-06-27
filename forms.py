@@ -2,7 +2,7 @@ from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField, TextAreaField, PasswordField
 from wtforms.validators import DataRequired, URL, Email, Length, ValidationError, InputRequired, EqualTo
 from flask_ckeditor import CKEditorField
-from models import User
+
 
 
 class ContactForm(FlaskForm):
@@ -53,16 +53,6 @@ class RegisterForm(FlaskForm):
         label="Confirm Password",
         validators=[DataRequired(message="Do not leave this field empty"),
                     EqualTo('password', message='Passwords must match')])
-
-    def validate_email(self, email):
-        """
-        Check if email already exists in the database
-        :param email:
-        :return:
-        """
-        user = User.query.filter_by(email=email.data).first()
-        if user:
-            raise ValidationError("Email already exists. Please try another one.")
 
     submit = SubmitField('Submit')
 
