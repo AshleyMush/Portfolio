@@ -42,8 +42,22 @@
 			<a href="#about" class="icon fa-solid fa-file"><span>About</span></a>
 			<a href="#login" class="icon fa-solid fa-user"><span>Login</span></a>
 
+
+			{% if not current_user.is_authenticated %}
 			<a href="#register" class="icon fa-solid fa-registered"><span>Register</span></a>
+			{% endif %}
+
+
+			<!--login privilleges-->
+			{% if current_user.is_authenticated %}
 			<a href="#add-project" class="icon solid fa-folder-plus"><span>Add Project</span></a>
+			<a href="{{ url_for('logout')}}" class="icon solid fa-right-from-bracket"><span>Add Project</span></a>
+
+
+
+			{% endif %}
+
+
 
 			
 		</nav>
@@ -71,35 +85,68 @@
 
 			<!-- Contact -->
 			<article id="contact" class="panel">
-
-				{% include 'contact-form-content.html' %}
+<!-- Flash Messages for Contact Form -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+        <ul>
+            {% for category, message in messages %}
+            <li class="alert alert-{{ category }}">{{ message }}</li>
+            {% endfor %}
+        </ul>
+        {% endif %}
+        {% endwith %}
+				<!--Contact Form-->
+        {% include 'contact-form-content.html' %}
 
 			</article>
 
 
 			<!--About-->
 			<article id="about" class="panel">
-
 				{% include 'about-content.html' %}
-
-
-
 			</article>
 
+
+
+			<!--Login-->
 			<article id="login" class="panel">
+				<!--Flash Messages-->
+				{% with messages = get_flashed_messages(with_categories=true) %}
+				{% if messages %}
+				<ul>
+					{% for category, message in messages %}
+					<li class="alert alert-{{ category }}">{{ message }}</li>
+					{% endfor %}
+				</ul>
+				{% endif %}
+				{% endwith %}
 
+				<!--Login Form-->
 				{% include 'login-form.html' %}
-
 			</article>
 
 
+    {% if not current_user.is_authenticated %}
 
-			<!--TODO make remove register when  deployed-->
-			<article id="register" class="panel">
+    <!--Register-->
+    <article id="register" class="panel">
+        <h1 class="apple-font">Register</h1>
 
-				{% include 'register-form.html' %}
+        <!--Flash Messages for Registration-->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+        <ul>
+            {% for category, message in messages %}
+            <li class="alert alert-{{ category }}">{{ message }}</li>
+            {% endfor %}
+        </ul>
+        {% endif %}
+        {% endwith %}
 
-			</article>
+        <!--Register Form-->
+        {% include 'register-form.html' %}
+    </article>
+    {% endif %}
 
 
 

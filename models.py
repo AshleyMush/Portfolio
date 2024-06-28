@@ -36,7 +36,7 @@ class Projects(db.Model):
         # Method 2. Altenatively use Dictionary Comprehension to do the same thing.
         return {column.name: getattr(self, column.name) for column in self.__table__.columns}
 
-class User(db.Model):
+class User(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True)
     email = db.Column(db.String(250), unique=True, nullable=False)
     password = db.Column(db.String(250), nullable=False)

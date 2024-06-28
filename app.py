@@ -11,9 +11,9 @@ from models import db, Projects, User
 from wtforms import ValidationError
 import requests
 import json
-from flask_login import login_user
+from flask_login import login_user, LoginManager, login_required, logout_user, current_user
 
-from flask_login import LoginManager
+
 
 MY_EMAIL_ADDRESS = os.environ.get("EMAIL_KEY")
 MY_EMAIL_APP_PASSWORD = os.environ.get("PASSWORD_KEY")
@@ -46,8 +46,20 @@ def load_user(user_id):
 @app.route('/', methods=['GET', 'POST'])
 def home():
     """
-    Add Docstrings here to explain what this function does
-    :return:
+    This function handles the home route of the application. It initializes forms for contact, login, registration,
+    and adding a project. It also retrieves the current year and a list of all projects from the database.
+
+    If the contact form is submitted and validated, it sends an email to the user and the admin email.
+
+    If the register form is submitted and validated, it checks if the user already exists. If not, it creates a new
+    user instance and adds it to the database.
+
+    If the login form is submitted and validated, it checks the user's credentials. If they are correct, it logs in
+    the user and redirects them to the admin home page.
+
+    Finally, it renders the home page with the necessary context variables.
+
+    :return: Rendered template for the home page.
     """
     contact_form = ContactForm()
     login_form = LoginForm()
@@ -69,54 +81,61 @@ def home():
         send_confirmation_email(name=name, email=email, subject=subject)
         send_email(name=name, subject=subject, email=email, message=message)
 
+        flash(message='Message Sent Successfully', category='success')
+
+
         return render_template('index.html', projects=list_of_projects,
                                current_year=current_year, msg_sent=True,
-                                login=False, form=contact_form, login_form=login_form,request_form=register_form,
-
+                               form=contact_form, login_form=login_form, register_form=register_form,
                                add_project_form=add_project_form)
 
-    #TODO: remove once registered and deployed
-    #----Register form---#
+    # TODO: remove once registered and deployed
+    # ----Register form---#
     if register_form.validate_on_submit() and register_form.data:
         """
         if the form is validated, create a new user instance and add it to the database
         """
+        if User.query.first():
+            flash("Registration is closed as an admin is already registered.", 'danger')
+        else:
+            hashed_and_salted_password = generate_password_hash(register_form.password.data,
+                                                                method='pbkdf2:sha256',
+                                                                salt_length=8)
 
-        existing_user = User.query.filter_by(email=register_form.email.data).first()
-        if existing_user:
-            flash("You've already signed up with that email, log in instead!")
-
-        hashed_and_salted_password = generate_password_hash(register_form.password.data,
-                                                            method='pbkdf2:sha256',
-                                                            salt_length=8)
-
-        new_user = User(
-            name=register_form.name.data,
-            email=register_form.email.data,
-            password=hashed_and_salted_password
-        )
-        db.session.add(new_user)
-        db.session.commit()
+            new_user = User(
+                name=register_form.name.data,
+                email=register_form.email.data,
+                password=hashed_and_salted_password
+            )
+            db.session.add(new_user)
+            db.session.commit()
+            flash('Registration successful! You can now log in.', 'success')
+            return redirect(url_for('home'))
 
     if login_form.validate_on_submit() and login_form.data:
         """
         if the form is validated, login the user
         """
-        login_email =login_form.email.data
+        login_email = login_form.email.data
         login_password = login_form.password.data
 
         user = User.query.filter_by(email=login_email).first()
 
-        if user and check_password_hash(user.password, login_password)
+        if user and check_password_hash(user.password, login_password):
             login_user(user)
-            return redirect(url_for('admin-home'))
+            flash('Logged in successfully', 'success')
+            return redirect(url_for('admin_home'))
 
-
-
-
+        flash('Login Failed. Check your email and password.', 'danger')
 
     return render_template('index.html', projects=list_of_projects, current_year=current_year, msg_sent=False,
-                           login=False, form=contact_form, login_form=login_form, register_form= register_form, add_project_form=add_project_form)
+                           form=contact_form, login_form=login_form, register_form=register_form, add_project_form=add_project_form)
+
+
+
+
+
+
 
 #----------------------------------------------------------------------Add project
 # Todo: Create instance of db and  pasrse  projects to projects.html
@@ -127,8 +146,9 @@ def all_projects():
 
 
 
-#-------------------------------------------------------------------Admin home
+#-------------------------Admin home
 @app.route('/admin-home', methods=['GET', 'POST'])
+@login_required
 def admin_home():
     """
     Add Docstrings here to explain what this function does
@@ -156,9 +176,9 @@ def admin_home():
 
         return render_template('index.html', projects=list_of_projects,
                                current_year=current_year, msg_sent=True,
-                                login=logged_in, form=contact_form, login_form=login_form,request_form=register_form,
+                                 form=contact_form, login_form=login_form,request_form=register_form,
 
-                               add_project_form=add_project_form)
+                               add_project_form=add_project_form, )
 
 
 
@@ -182,18 +202,42 @@ def admin_home():
 
 
     return render_template('index.html', projects=list_of_projects, current_year=current_year, msg_sent=False,
-                           login=False, form=contact_form, login_form=login_form, register_form= register_form, add_project_form=add_project_form)
+                            form=contact_form, login_form=login_form, register_form= register_form, add_project_form=add_project_form)
+
+
+@app.route('/logout')
+@login_required
+def logout():
+    login_user()
+    flash('You have been logged out', 'Success')
+    return  redirect(url_for('home'))
+
+
+
+
+@app.route('/delete-project/<int:id>', methods=['DELETE'])
+def delete_project(id):
+    project = Projects.query.get_or_404(id)
+    db.session.delete(project)
+    db.session.commit()
+
+    return redirect(url_for('admin-home'))
+
+
+
+@app.route('/delete-user/<int:id>', methods=['DELETE'])
+def delete_user(id):
+    user = User.query.get_or_404(id)
+    db.session.delete(user)
+    db.session.commit()
+
+    return "deleted"
 
 
 
 
 
 
-# Todo: Create instance of db and  pasrse  projects to projects.html
-@app.route('/projects', methods=['GET', 'POST'])
-def all_projects():
-    list_of_projects = Projects.query.all()
-    return render_template('all-projects.html', projects=list_of_projects)
 
 
 
@@ -327,7 +371,7 @@ def get_project(id):
     form = ContactForm()
     current_year = datetime.now().year
 
-    list_of_projects = all_projects_list()
+    list_of_projects = Projects.query.all()
 
 
 #TODO: Get projects from api
