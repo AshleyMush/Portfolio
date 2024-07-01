@@ -187,18 +187,19 @@ def admin_home():
         """
         if the form is validated, create a new project instance and add it to the database
         """
-        new_project = {
-            'name': add_project_form.name.data,
-            'homepage_thumbnail': add_project_form.homepage_thumbnail.data,
-            'img_url': add_project_form.img_url.data,
-            'video_url': add_project_form.video_url.data,
-            'category': add_project_form.category.data,
-            'tech_used': add_project_form.tech_used.data,
-            'project_url': add_project_form.project_url.data,
-            'description': add_project_form.description.data
-        }
+        new_project = Projects(
+                                name=add_project_form.name.data,
+                                homepage_thumbnail=add_project_form.homepage_thumbnail.data,
+                                img_url=add_project_form.img_url.data,
+                                video_url=add_project_form.video_url.data,
+                                category=add_project_form.category.data,
+                                tech_used=add_project_form.tech_used.data,
+                                project_url=add_project_form.project_url.data,
+                                description=add_project_form.description.data
+                                )
         db.session.add(new_project)
         db.session.commit()
+        flash('Project added successfully', 'success')
 
 
     return render_template('index.html', projects=list_of_projects, current_year=current_year, msg_sent=False,
