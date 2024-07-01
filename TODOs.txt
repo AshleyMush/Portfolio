@@ -1,1 +1,3 @@
 Remove register.html once deployed. Remove register article from index.html.
+
+Fix font awesome icons  in index,html otherwise everything is functioning fine

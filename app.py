@@ -208,7 +208,7 @@ def admin_home():
 @app.route('/logout')
 @login_required
 def logout():
-    login_user()
+    logout_user()
     flash('You have been logged out', 'Success')
     return  redirect(url_for('home'))
 
