@@ -154,6 +154,8 @@ def admin_home():
     Add Docstrings here to explain what this function does
     :return:
     """
+
+    print("Admin Dashboard")
     login_form = LoginForm()
     register_form = RegisterForm()
     contact_form = ContactForm()
@@ -185,25 +187,110 @@ def admin_home():
 
     if add_project_form.validate_on_submit() and add_project_form.data:
         """
-        if the form is validated, create a new project instance and add it to the database
+        if the form is validated and has data on the fields required, create a new project instance and add it to the database
         """
         new_project = Projects(
-                                name=add_project_form.name.data,
-                                homepage_thumbnail=add_project_form.homepage_thumbnail.data,
-                                img_url=add_project_form.img_url.data,
-                                video_url=add_project_form.video_url.data,
-                                category=add_project_form.category.data,
-                                tech_used=add_project_form.tech_used.data,
-                                project_url=add_project_form.project_url.data,
-                                description=add_project_form.description.data
-                                )
+            name=add_project_form.name.data,
+            homepage_thumbnail=add_project_form.homepage_thumbnail.data,
+            img_url=add_project_form.img_url.data,
+            video_url=add_project_form.video_url.data,
+            category=add_project_form.category.data,
+            tech_used=add_project_form.tech_used.data,
+            project_url=add_project_form.project_url.data,
+            description=add_project_form.description.data
+        )
+        print(new_project)
         db.session.add(new_project)
         db.session.commit()
         flash('Project added successfully', 'success')
 
+        return redirect(url_for('admin_home'))
+    else:
+        flash('Project not added. Please check the form and try again.', 'danger')
 
     return render_template('index.html', projects=list_of_projects, current_year=current_year, msg_sent=False,
                             form=contact_form, login_form=login_form, register_form= register_form, add_project_form=add_project_form)
+
+
+
+# HTTP -Get a specific item
+@app.route('/<int:id>', methods=['GET'])
+def get_project(id):
+
+    contact_form = ContactForm()
+    login_form = LoginForm()
+    register_form = RegisterForm()
+    add_project_form = AddProjectForm()
+    current_year = datetime.now().year
+    list_of_projects = Projects.query.all()
+    project = Projects.query.get_or_404(id)
+
+
+    #---- Contact form logic ----
+    if contact_form.validate_on_submit() and contact_form.data:
+        """
+        if the form is validated, send an email to the user and another to the admin
+        """
+        name, email, subject, message = contact_form.name.data, \
+            contact_form.email.data, contact_form.subject.data, contact_form.message.data
+
+        print(f"{name, email, subject, message}")
+
+        send_confirmation_email(name=name, email=email, subject=subject)
+        send_email(name=name, subject=subject, email=email, message=message)
+
+        flash(message='Message Sent Successfully', category='success')
+
+        return render_template('index.html', projects=list_of_projects,
+                               current_year=current_year, msg_sent=True,
+                               form=contact_form, login_form=login_form, register_form=register_form,
+                               add_project_form=add_project_form)
+
+    # TODO: remove once registered and deployed
+    # ----Register form---#
+    if register_form.validate_on_submit() and register_form.data:
+        """
+        if the form is validated, create a new user instance and add it to the database
+        """
+        if User.query.first():
+            flash("Registration is closed as an admin is already registered.", 'danger')
+        else:
+            hashed_and_salted_password = generate_password_hash(register_form.password.data,
+                                                                method='pbkdf2:sha256',
+                                                                salt_length=8)
+
+            new_user = User(
+                name=register_form.name.data,
+                email=register_form.email.data,
+                password=hashed_and_salted_password
+            )
+            db.session.add(new_user)
+            db.session.commit()
+            flash('Registration successful! You can now log in.', 'success')
+            return redirect(url_for('home'))
+
+
+    #----Login form logic----
+    if login_form.validate_on_submit() and login_form.data:
+        """
+        if the form is validated, login the user
+        """
+        login_email = login_form.email.data
+        login_password = login_form.password.data
+
+        user = User.query.filter_by(email=login_email).first()
+
+        if user and check_password_hash(user.password, login_password):
+            login_user(user)
+            flash('Logged in successfully', 'success')
+            return redirect(url_for('admin_home'))
+
+        flash('Login Failed. Check your email and password.', 'danger')
+
+    return render_template('base-project.html', project = project,current_year=current_year, msg_sent=False, form=form,
+                           projects=list_of_projects, login_form=login_form)
+
+
 
 
 @app.route('/logout')
@@ -363,38 +450,38 @@ def send_put_to_api(id):
 
 
 
-
-
-# HTTP -Get a specific item
-@app.route('/<int:id>', methods=['GET'])
-def get_project(id):
-    login_form = LoginForm()
-    form = ContactForm()
-    current_year = datetime.now().year
-
-    list_of_projects = Projects.query.all()
-
-
-#TODO: Get projects from api
-    response = requests.get(url=f'http://127.0.0.1:5002/api/project/{id}')
-    data   = response.json()
-    project = data
-
-
-
-    if form.validate_on_submit() and form.data:
-        name, email, subject, message = form.name.data, form.email.data, form.subject.data, form.message.data
-
-        print(f"{name, email, subject, message}")
-
-        send_confirmation_email(name=name, email=email, subject=subject)
-        send_email(name=name, subject=subject, email=email, message=message)
-
-        return render_template('base-project.html',project = project, current_year=current_year, msg_sent=True, form=form
-                            , projects=list_of_projects, login_form=login_form)
-
-    return render_template('base-project.html', project = project,current_year=current_year, msg_sent=False, form=form,
-                           projects=list_of_projects, login_form=login_form)
+#
+#
+# # HTTP -Get a specific item
+# @app.route('/<int:id>', methods=['GET'])
+# def get_project(id):
+#     login_form = LoginForm()
+#     form = ContactForm()
+#     current_year = datetime.now().year
+#
+#     list_of_projects = Projects.query.all()
+#
+#
+# #TODO: Get projects from api
+#     response = requests.get(url=f'http://127.0.0.1:5002/api/project/{id}')
+#     data   = response.json()
+#     project = data
+#
+#
+#
+#     if form.validate_on_submit() and form.data:
+#         name, email, subject, message = form.name.data, form.email.data, form.subject.data, form.message.data
+#
+#         print(f"{name, email, subject, message}")
+#
+#         send_confirmation_email(name=name, email=email, subject=subject)
+#         send_email(name=name, subject=subject, email=email, message=message)
+#
+#         return render_template('base-project.html',project = project, current_year=current_year, msg_sent=True, form=form
+#                             , projects=list_of_projects, login_form=login_form)
+#
+#     return render_template('base-project.html', project = project,current_year=current_year, msg_sent=False, form=form,
+#                            projects=list_of_projects, login_form=login_form)
 
 
 @app.route('/download', methods=['GET', 'POST'])

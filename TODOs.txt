@@ -1,3 +1,4 @@
 Remove register.html once deployed. Remove register article from index.html.
 
-Fix font awesome icons  in index,html otherwise everything is functioning fine
+1) Fix the bug where the form in get_project is not being submitted.
+2) Fix the login for if a user is not authenticated they can get a project and if they are authenticated they can get a project, this logic should extend to admin home

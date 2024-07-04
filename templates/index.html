@@ -90,7 +90,7 @@
 				</a>
 			</article>
 
-			<!-- Work -->
+			<!-- Work/ Projects -->
 			<article id="work" class="panel">
 				{% include 'all-projects.html' %}
 
@@ -120,8 +120,8 @@
 			</article>
 
 
-
-			<!--Login-->
+			{% if not current_user.is_authenticated %}
+			<!--Login form-->
 			<article id="login" class="panel">
 				<!--Flash Messages-->
 				{% with messages = get_flashed_messages(with_categories=true) %}
@@ -137,11 +137,12 @@
 				<!--Login Form-->
 				{% include 'login-form.html' %}
 			</article>
+			{% endif %}
 
 
     {% if not current_user.is_authenticated %}
 
-    <!--Register-->
+    <!--Register form-->
     <article id="register" class="panel">
         <h1 class="apple-font">Register</h1>
 
@@ -163,7 +164,7 @@
 
 
 
-<!--TODO make project_sent hidden when it is neither True nor False-->
+<!--Add project form [authentication required]-->
 <article id="add-project" class="panel">
 	        {% with messages = get_flashed_messages(with_categories=true) %}
         {% if messages %}
