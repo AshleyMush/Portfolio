@@ -8,6 +8,7 @@
 	<div class="row">
 
 	{% for project in projects %}
+		{% if selected_project_id != project.id %}
 <div class="col-4 col-6-medium col-12-small ">
  <a href="{{url_for('get_project',id=project.id)}}" class="image fit ">
 
@@ -15,6 +16,7 @@
   <div class="project-name">{{project.name}}</div>
  </a>
 </div>
+{% endif %}
 	{% endfor %}
 
 

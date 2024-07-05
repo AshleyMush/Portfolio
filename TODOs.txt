@@ -1,4 +1,18 @@
 Remove register.html once deployed. Remove register article from index.html.
 
 1) Fix the bug where the form in get_project is not being submitted.
-2) Fix the login for if a user is not authenticated they can get a project and if they are authenticated they can get a project, this logic should extend to admin home
+2) Fix bug where the user can get_project and if they are authenticated, they should not see the login form or the register form. They should see the add project form.
+-What is the admin dashboard privilleges
+  -add project
+  -delete project
+  -login
+    -register once only
+    -patch project
+    -logout
+
+ if user gets all projects they should be redirected to url_for('home')
+ if user gets a project they should be redirected to url_for('home')
+ #---
+ if user logs in they should be redirected to url_for('admin_home')
+ The url_for('admin_home') should render the admin_home.html which extends index.html
+ in the admin should NOT have the ability to register, they should only be able to login

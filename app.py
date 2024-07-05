@@ -88,7 +88,7 @@ def home():
         return render_template('index.html', projects=list_of_projects,
                                current_year=current_year, msg_sent=True,
                                contact_form=contact_form, login_form=login_form, register_form=register_form,
-                               add_project_form=add_project_form, got_project = False ,project = None)
+                               add_project_form=add_project_form, got_project = False ,selected_project_id= None,project = None)
 
     # TODO: remove once registered and deployed
     # ----Register form---#
@@ -130,7 +130,7 @@ def home():
         flash('Login Failed. Check your email and password.', 'danger')
 
     return render_template('index.html', projects=list_of_projects, current_year=current_year, msg_sent=False,
-                           contact_form=contact_form, login_form=login_form, register_form=register_form, add_project_form=add_project_form,got_project = False, project = None)
+                           contact_form=contact_form, login_form=login_form, register_form=register_form, add_project_form=add_project_form,got_project = False, selected_project_id= None, project = None)
 
 
 
@@ -252,7 +252,7 @@ def get_project(id):
         return render_template('index.html', projects=list_of_projects,
                                current_year=current_year, msg_sent=True,
                                contact_form=contact_form, login_form=login_form, register_form=register_form,
-                               add_project_form=add_project_form,  project=selected_project,got_project = True)
+                               add_project_form=add_project_form,  project=selected_project, selected_project_id= selected_project.id,got_project = True)
 
     # TODO: remove once registered and deployed
     # ----Register form logic---#
@@ -299,7 +299,7 @@ def get_project(id):
     print(f'Sending {selected_project.name} to index.html')
 
     return render_template('project.html', projects=list_of_projects, current_year=current_year, msg_sent=False,
-                           contact_form=contact_form, login_form=login_form, register_form=register_form, add_project_form=add_project_form, project=selected_project, got_project = True)
+                           contact_form=contact_form, login_form=login_form, register_form=register_form, add_project_form=add_project_form, project=selected_project, selected_project_id= selected_project.id,got_project = True)
 
 
 
