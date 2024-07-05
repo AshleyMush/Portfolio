@@ -1,9 +1,6 @@
 {% extends 'base.html' %}
 
-{% block title %}Automated Care Notes internal Audit tool.{% endblock %}
-
-
-
+{% block title %}{{ project.name }} - Ashley's Portfolio{% endblock %}
 
 {% block project_content %}
 
@@ -11,18 +8,22 @@
 	<h2 class="apple-font">Project:</h2>
 </header>
 
-<h2>Automated Care Notes internal Audit tool.</h2>
+<!-- Project Name -->
+<p>Project: {{project.name}}</p>
 <section>
 	<div class="container">
 		<div class="row">
 			<!-- Image Column -->
 			<div class="col-md-6">
 				<div class="thumbnail-container">
-					<a href="https://youtu.be/DJnH0jR8y5Q" target="_blank">
-						<!--Youtube image-->
-						<img src="https://img.youtube.com/vi/DJnH0jR8y5Q/maxresdefault.jpg"
+
+                  <!--Video Url-->
+					<a href="{{project.img_url}}" target="_blank">
+
+                      <!-- Youtube Thumbnail/ img url-->
+						<img src="{{ project.img_url }}"
 							alt="YouTube Video Thumbnail" class="img-fluid youtube-thumbnails">
-						<!-- Youtube Thumbnail-->
+
 						<svg width="64px" height="64px" viewBox="0 -7 48 48" class="youtube-logo" version="1.1"
 							xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
 							fill="#000000">
@@ -45,32 +46,31 @@
 					</a>
 				</div>
 
-
-
 			</div>
 			<!-- Text Column -->
 			<div class="col-md-6">
 				<!-- Project Information -->
 				<div class="project-info my-4">
-					<p><strong>Category:</strong> Python Desktop Application</p>
-					<p><strong>Technologies:</strong> Python, pandas, numpy, Tkinter, selenium</p>
-					<p><strong>Project URL:</strong> <a href="http://www.example.com"
-							target="_blank">www.example.com</a></p>
+
+                  <!-- category-->
+					<p><strong>Category:</strong> {{project.category}}</p>
+
+                   <!--technologies-->
+					<p><strong>Technologies:</strong> {{project.tech_used}}</p>
+
+                   <!--TODO:  add project url-->
+					<p><strong>Project URL:</strong> <a href="{{project.project_url}}"
+							target="_blank">{{project.project_url}}</a></p>
 				</div>
 			</div>
 			<!-- Project Details  -->
 			<div class="col-md-12 mt-0 pt-0">
 				<div class="project-detail">
-					<h3>What the heck is that?</h3>
-<p>
-  This desktop application enhances the safety of over 200 vulnerable adults in Oxfordshire by automating the review of care notes documented by over 80 carers. The app efficiently identifies and highlights urgent health concerns in the care notes, which may otherwise be overlooked due to the high volume of data. Key features include:
-  <ul class="dotted-list">
-    <li>Automated scanning of daily care notes to detect symptoms or problems requiring immediate attention.</li>
-    <li>Alert system that notifies care coordinators and team leaders about potential issues, enabling swift intervention.</li>
-    <li>Proven impact, having prevented over 50 potentially fatal injuries by facilitating timely medical responses.</li>
-  </ul>
-  This tool ensures that all critical health issues are promptly addressed, significantly improving the response rate and preventing serious health outcomes.
-</p>
+
+					<h3>Details</h3>
+
+                  <!--TODO:  Add Project Description -->
+					<p>{{project.description}}</p>
 				</div>
 			</div>
 		</div>

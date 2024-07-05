@@ -68,6 +68,7 @@ def home():
 
     current_year = datetime.now().year
     list_of_projects = Projects.query.all()
+    got_project = False
 
     if contact_form.validate_on_submit() and contact_form.data:
         """
@@ -86,8 +87,8 @@ def home():
 
         return render_template('index.html', projects=list_of_projects,
                                current_year=current_year, msg_sent=True,
-                               form=contact_form, login_form=login_form, register_form=register_form,
-                               add_project_form=add_project_form)
+                               contact_form=contact_form, login_form=login_form, register_form=register_form,
+                               add_project_form=add_project_form, got_project = False ,project = None)
 
     # TODO: remove once registered and deployed
     # ----Register form---#
@@ -129,7 +130,7 @@ def home():
         flash('Login Failed. Check your email and password.', 'danger')
 
     return render_template('index.html', projects=list_of_projects, current_year=current_year, msg_sent=False,
-                           form=contact_form, login_form=login_form, register_form=register_form, add_project_form=add_project_form)
+                           contact_form=contact_form, login_form=login_form, register_form=register_form, add_project_form=add_project_form,got_project = False, project = None)
 
 
 
@@ -178,7 +179,7 @@ def admin_home():
 
         return render_template('index.html', projects=list_of_projects,
                                current_year=current_year, msg_sent=True,
-                                 form=contact_form, login_form=login_form,request_form=register_form,
+                                 contact_form=contact_form, login_form=login_form,request_form=register_form,
 
                                add_project_form=add_project_form, )
 
@@ -209,29 +210,35 @@ def admin_home():
         flash('Project not added. Please check the form and try again.', 'danger')
 
     return render_template('index.html', projects=list_of_projects, current_year=current_year, msg_sent=False,
-                            form=contact_form, login_form=login_form, register_form= register_form, add_project_form=add_project_form)
+                            contact_form=contact_form, login_form=login_form, register_form= register_form, add_project_form=add_project_form)
 
 
 
-# HTTP -Get a specific item
-@app.route('/<int:id>', methods=['GET'])
+
+
+#HTTP -Get a specific item
+@app.route('/project/<int:id>', methods=['GET'])
 def get_project(id):
-
+    print(f'Now in GET-PROJECT {id}')
     contact_form = ContactForm()
     login_form = LoginForm()
     register_form = RegisterForm()
     add_project_form = AddProjectForm()
+
     current_year = datetime.now().year
+    selected_project = Projects.query.get_or_404(id)
     list_of_projects = Projects.query.all()
-    project = Projects.query.get_or_404(id)
+    got_project = True
 
 
-    #---- Contact form logic ----
+    print(f"Selected project: {selected_project.name}")
+
+    #----Contact form logic---#
     if contact_form.validate_on_submit() and contact_form.data:
         """
         if the form is validated, send an email to the user and another to the admin
         """
-        name, email, subject, message = contact_form.name.data, \
+        name, email, subject, message = contact_form.name.data,\
             contact_form.email.data, contact_form.subject.data, contact_form.message.data
 
         print(f"{name, email, subject, message}")
@@ -241,13 +248,14 @@ def get_project(id):
 
         flash(message='Message Sent Successfully', category='success')
 
+
         return render_template('index.html', projects=list_of_projects,
                                current_year=current_year, msg_sent=True,
-                               form=contact_form, login_form=login_form, register_form=register_form,
-                               add_project_form=add_project_form)
+                               contact_form=contact_form, login_form=login_form, register_form=register_form,
+                               add_project_form=add_project_form,  project=selected_project,got_project = True)
 
     # TODO: remove once registered and deployed
-    # ----Register form---#
+    # ----Register form logic---#
     if register_form.validate_on_submit() and register_form.data:
         """
         if the form is validated, create a new user instance and add it to the database
@@ -267,10 +275,11 @@ def get_project(id):
             db.session.add(new_user)
             db.session.commit()
             flash('Registration successful! You can now log in.', 'success')
-            return redirect(url_for('home'))
+
+            return redirect(url_for('get_project'))
 
 
-    #----Login form logic----
+    # ----Login form logic---#
     if login_form.validate_on_submit() and login_form.data:
         """
         if the form is validated, login the user
@@ -283,12 +292,14 @@ def get_project(id):
         if user and check_password_hash(user.password, login_password):
             login_user(user)
             flash('Logged in successfully', 'success')
-            return redirect(url_for('admin_home'))
+            return redirect(url_for('home'))
 
         flash('Login Failed. Check your email and password.', 'danger')
 
-    return render_template('base-project.html', project = project,current_year=current_year, msg_sent=False, form=form,
-                           projects=list_of_projects, login_form=login_form)
+    print(f'Sending {selected_project.name} to index.html')
+
+    return render_template('project.html', projects=list_of_projects, current_year=current_year, msg_sent=False,
+                           contact_form=contact_form, login_form=login_form, register_form=register_form, add_project_form=add_project_form, project=selected_project, got_project = True)
 
 
 
@@ -477,10 +488,10 @@ def send_put_to_api(id):
 #         send_confirmation_email(name=name, email=email, subject=subject)
 #         send_email(name=name, subject=subject, email=email, message=message)
 #
-#         return render_template('base-project.html',project = project, current_year=current_year, msg_sent=True, form=form
+#         return render_template('project.html',project = project, current_year=current_year, msg_sent=True, form=form
 #                             , projects=list_of_projects, login_form=login_form)
 #
-#     return render_template('base-project.html', project = project,current_year=current_year, msg_sent=False, form=form,
+#     return render_template('project.html', project = project,current_year=current_year, msg_sent=False, form=form,
 #                            projects=list_of_projects, login_form=login_form)
 
 

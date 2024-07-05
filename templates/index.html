@@ -3,8 +3,8 @@
 <html>
 
 <head>
-	
-	<title>Ashley's website</title>
+
+	<title>{% block title %}Ashley's Portfolio{% endblock %}</title>
 	<meta charset="utf-8" />
 	<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
 	<link rel="stylesheet" href="/static/assets/css/main.css" />
@@ -26,9 +26,9 @@
 ...
 
 
-	
 
-</head> 
+
+</head>
 </head>
 
 <body class="is-preload">
@@ -41,9 +41,14 @@
 		<!-- Nav -->
 		<nav id="nav">
 
-			
+
 
 			<a href="#" class="icon solid fa-home"><span>Home</span></a>
+			<!--TODO: hide the project link unless the user has been redirected to the project page-->
+			{% if got_project %}
+			<a href="#project" class="icon solid fa-star"><span>Project</span></a>
+			{% endif %}
+
 			<a href="#work" class="icon solid fa-folder"><span>My Work</span></a>
 			<a href="#contact" class="icon solid fa-envelope"><span>Contact</span></a>
 
@@ -72,13 +77,14 @@
 
 
 
-			
+
 		</nav>
 
 		<!-- Main -->
 		<div id="main">
 
 			<!-- Me -->
+
 			<article id="home" class="panel intro">
 				<header>
 					<h1 class="apple-font">Ashley</h1>
@@ -88,6 +94,16 @@
 					<span class="arrow icon solid fa-chevron-right"><span>See my work</span></span>
 					<img src="/static/images/me.jpg" alt="" />
 				</a>
+			</article>
+
+			<article id="project" class="panel">
+
+				<!--Project-->
+				<!--{% include 'project.html' %}-->
+				{% block project_content %}
+
+				{% endblock %}
+
 			</article>
 
 			<!-- Work/ Projects -->

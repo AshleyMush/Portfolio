@@ -11,33 +11,33 @@
 
 
 				<form action="#contact" method="post">
-					{{ form.csrf_token }}
+					{{ contact_form.csrf_token }}
 
 					<div>
 						<div class="row">
 							<div class="col-6 col-12-medium">
-								{{ form.name()}}
+								{{ contact_form.name()}}
 							</div>
 							<div class="col-6 col-12-medium">
-								{{ form.email() }}
+								{{ contact_form.email() }}
 
-{% if form.email.errors %}
+{% if contact_form.email.errors %}
 <ul class="errors">
-    {% for error in form.email.errors %}
+    {% for error in contact_form.email.errors %}
     <li>{{ error }}</li>
     {% endfor %}
 {% endif %}
 							</div>
 							<div class="col-12">
-								{{ form.subject() }}
+								{{ contact_form.subject() }}
 							</div>
 							<div class="col-12">
-								{{ form.message()}}
+								{{ contact_form.message()}}
 							</div>
 							<div class="col-12">
-								{{ form.submit() }}
+								{{ contact_form.submit() }}
 
 							</div>
 						</div>
 					</div>
-				</form>
+				</form>                
