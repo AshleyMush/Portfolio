@@ -15,6 +15,7 @@ from flask_login import login_user, LoginManager, login_required, logout_user, c
 
 
 
+
 MY_EMAIL_ADDRESS = os.environ.get("EMAIL_KEY")
 MY_EMAIL_APP_PASSWORD = os.environ.get("PASSWORD_KEY")
 
